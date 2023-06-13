@@ -1,0 +1,31 @@
+[project]
+name = "btnl-client"
+description = "A library for Bitnomial's trading system binary protocol for order entry and pricefeed"
+authors = [
+    {name = "Matthew Wraith", email = "opensource@bitnomial.com"},
+]
+keywords = ["bitnomial"]
+license = {text = "BSD-3-Clause"}
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+tests = [
+    'pytest',
+    'mypy',
+]
+
+[tool.pylsp-mypy]
+enabled = true
+live_mode = true
+strict = false
+
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
