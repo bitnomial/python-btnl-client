@@ -21,7 +21,7 @@ class MessageBody(Protocol):
         ...
 
 
-class MessageTypeBody(MessageBody):
+class MessageTypeBody(MessageBody, Protocol):
     MESSAGE_TYPES: Dict[bytes, Callable[[bytes], MessageBody]]
 
     @classmethod

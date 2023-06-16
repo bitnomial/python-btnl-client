@@ -112,16 +112,6 @@ class OrderEntryClient:
         self.writer.close()
 
 
-class SimpleTrader(OrderEntryClient):
-    order_id = 0
-
-    async def trade(self):
-        self.order_id += 1
-        await self.send_message(
-            Open(self.order_id, 3668, Side.Bid, 10000, 10, TimeInForce.Day)
-        )
-
-
 # Testing
 # order = Open(123, 456, Side.Bid, 789, 10, TimeInForce.Day)
 # msg = Message(1, order)
@@ -137,10 +127,19 @@ class SimpleTrader(OrderEntryClient):
 
 
 # Usage:
-client = SimpleTrader(
-    "localhost",
-    11000,
-    1,
-    "0000000000000000000000000000000000000000000000000000000000000001",
-)
-asyncio.run(client.run())
+# client = SimpleTrader(
+#     "localhost",
+#     11000,
+#     1,
+#     "0000000000000000000000000000000000000000000000000000000000000001",
+# )
+# asyncio.run(client.run())
+
+# TODO move into example folder
+# class SimpleTrader(OrderEntryClient):
+#     order_id = 0
+#     async def trade(self):
+#         self.order_id += 1
+#         await self.send_message(
+#             Open(self.order_id, 3668, Side.Bid, 10000, 10, TimeInForce.Day)
+#         )
