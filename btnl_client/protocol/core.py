@@ -2,12 +2,18 @@ from enum import Enum
 from typing import Callable, Dict, Protocol
 
 
+class Side(Enum):
+    Bid = "B"
+    Ask = "A"
+
+
 class BodyEncoding(Enum):
     OrderEntry = "OE"
     Login = "LG"
     MarketState = "MS"
     Heartbeat = "HB"
     Disconnect = "DN"
+    Pricefeed = "PF"
 
 
 class MessageBody(Protocol):

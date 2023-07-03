@@ -7,6 +7,7 @@ from .core import BodyEncoding, MessageBody
 from .login import Login
 from .market_state import MarketStateUpdate
 from .order_entry import OrderEntry
+from .pricefeed import Pricefeed
 
 
 @dataclass
@@ -110,6 +111,7 @@ class Message:
         BodyEncoding.MarketState: MarketStateUpdate.from_btp,
         BodyEncoding.Heartbeat: Heartbeat.from_btp,
         BodyEncoding.Disconnect: Disconnect.from_btp,
+        BodyEncoding.Pricefeed: Pricefeed.from_btp,
     }
 
     @staticmethod
