@@ -3,12 +3,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
-from .core import BodyEncoding, MessageBody, MessageTypeBody
-
-
-class Side(Enum):
-    Bid = "B"
-    Ask = "A"
+from .core import BodyEncoding, MessageBody, MessageTypeBody, Side
 
 
 class TimeInForce(Enum):
