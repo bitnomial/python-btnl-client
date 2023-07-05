@@ -225,7 +225,7 @@ class Fill(MessageBody):
 
     body_encoding = BodyEncoding.OrderEntry
     MSG_TYPE = b"F"
-    FORMAT_STR = "<cQQIc"
+    FORMAT_STR = "<cQQqIc"
 
     def to_btp(self) -> bytes:
         return struct.pack(
