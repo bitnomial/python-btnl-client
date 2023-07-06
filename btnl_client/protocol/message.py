@@ -55,7 +55,7 @@ class Disconnect(MessageBody):
             Disconnect.FORMAT_STR, data
         )
         return Disconnect(
-            DisconnectReason(disconnect_reason.decode()),
+            DisconnectReason(disconnect_reason),
             expected_sequence_id if expected_sequence_id != 0 else None,
             actual_sequence_id if actual_sequence_id != 0 else None,
         )
