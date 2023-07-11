@@ -6,6 +6,8 @@ let
     python-lsp-server
     build
     # Add your other dependencies here
+    requests
+    types-requests
   ];
 
   python-with-my-packages = python39.withPackages btnl-client-packages;
