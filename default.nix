@@ -8,6 +8,7 @@ let
     # Add your other dependencies here
     requests
     types-requests
+    websockets
   ];
 
   python-with-my-packages = python39.withPackages btnl-client-packages;
