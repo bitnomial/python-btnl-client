@@ -13,14 +13,15 @@ classifiers = [
 ]
 dependencies = [
     'requests',
+    "websockets",
 ]
 dynamic = ["version"]
 
 [project.optional-dependencies]
 tests = [
-    'pytest',
-    'mypy',
-    'types-requests',
+    "pytest",
+    "mypy",
+    "types-requests",
 ]
 
 [tool.pylsp-mypy]
