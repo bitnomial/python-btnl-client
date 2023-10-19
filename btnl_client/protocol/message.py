@@ -27,7 +27,6 @@ class Heartbeat(MessageBody):
 class DisconnectReason(Enum):
     SequenceIdFault = 0x01
     HeartbeatFault = 0x02
-    FailedToLogin = 0x03
     MessagingRateExceeded = 0x04
     ParseFailure = 0x05
 
