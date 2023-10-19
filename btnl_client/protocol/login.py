@@ -72,7 +72,7 @@ class LoginAck(MessageBody):
 
 
 class LoginRejectReason(Enum):
-    NotLoggedIn = 0x01
+    NoReqReceived = 0x01
     Unauthorized = 0x02
     AlreadyLoggedIn = 0x03
 
