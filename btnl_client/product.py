@@ -1,8 +1,10 @@
-import requests
-import json
 from dataclasses import dataclass
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union, TypeVar, Generic
 from enum import Enum
+from datetime import datetime, date, timezone
+import btnl_client.hmac as hmac
+from urllib.parse import urlparse
+import requests
 
 
 BASE_URL = "https://bitnomial.com/exchange/api/v1"
@@ -80,6 +82,70 @@ class ProductOptionSpec(BaseProductSpec):
 ProductSpec = Union[ProductFutureSpec, ProductOptionSpec, ProductSpreadSpec]
 
 
+class ProductType(Enum):
+    Future = "Future"
+    Spread = "Spread"
+    Option = "Option"
+
+
+class Side(Enum):
+    Bid = "Bid"
+    Ask = "Ask"
+
+
+class TimeInForce(Enum):
+    IOC = "IOC"
+    Day = "Day"
+    GTC = "GTC"
+
+
+class OrderStatus(Enum):
+    Working = "Working"
+    Closed = "Closed"
+
+
+class Liquidity(Enum):
+    Add = "Add"
+    Remove = "Remove"
+    SpreadLeg = "SpreadLeg"
+
+
+@dataclass
+class Order:
+    symbol: str
+    product_id: int
+    product_type: ProductType
+    id: int
+    connection_id: int
+    clearing_firm_code: str
+    account_id: str
+    open_ack_id: int
+    side: Side
+    price: int
+    quantity_requested: int
+    quantity_filled: int
+    status: OrderStatus
+    time_in_force: TimeInForce
+
+
+@dataclass
+class Fill:
+    symbol: str
+    product_id: int
+    product_type: ProductType
+    order_id: int
+    clearing_firm_code: str
+    time: datetime
+    connection_id: int
+    account_id: str
+    ack_id: int
+    side: Side
+    price: int
+    quantity_requested: int
+    quantity_filled: int
+    liquidity: Liquidity
+
+
 @dataclass
 class ProductData:
     product_id: int
@@ -103,13 +169,33 @@ class ProductData:
     open_interest_change: Optional[float]
 
 
+class Ordering:
+    Asc = "asc"
+    Desc = "desc"
+
+
+T = TypeVar("T")
+P = TypeVar("P")
+
+
+@dataclass
+class Pagination(Generic[T, P]):
+    data: List[T]
+    pagination: P
+
+
+@dataclass
+class CursorInfo:
+    cursor: str
+
+
 class BitnomialHttpClient:
     base_url: str
-    env: str = "prod"
+    env: str
 
-    def __init__(self, base_url=BASE_URL, env="prod"):
-        self.base_url = base_url
-        self.env = env
+    def __init__(self, base_url=None, env=None):
+        self.base_url = base_url or BASE_URL
+        self.env = env or "prod"
 
     def get_product_spec(
         self, product_id, day=None, active=None, base_symbol=None
@@ -165,6 +251,103 @@ class BitnomialHttpClient:
         response = requests.get(url, params=params)
         product_data = response.json()
         return ProductData(**product_data)
+
+
+class AuthBitnomialHttpClient(BitnomialHttpClient):
+    connection_id: int
+    auth_token: str
+
+    def __init__(self, connection_id, auth_token, base_url=None, env=None):
+        self.connection_id = connection_id
+        self.auth_token = auth_token
+        super().__init__(base_url, env)
+
+    def get_fills(
+        self,
+        symbols: Optional[List[str]] = None,
+        product_ids: Optional[List[int]] = None,
+        product_types: Optional[List[ProductType]] = None,
+        clearing_firm_codes: Optional[List[str]] = None,
+        account_ids: Optional[List[str]] = None,
+        connection_ids: Optional[List[int]] = None,
+        day: Optional[date] = None,
+        limit=None,
+        begin_time=None,
+        end_time=None,
+        order=None,
+        cursor=None,
+    ) -> Pagination[List[Fill], CursorInfo]:
+        method = "GET"
+        path = f"/{self.env}/fills"
+        url = self.base_url + path
+        params = {
+            "symbol": symbols,
+            "connection_id": connection_ids,
+            "cursor": cursor,
+            "order": order,
+            "begin_time": begin_time,
+            "end_time": end_time,
+            "limit": limit,
+            "day": day,
+            "account_id": account_ids,
+            "clearing_firm_code": clearing_firm_codes,
+            "product_type": product_types,
+            "product_id": product_ids,
+        }
+        headers = self.auth_headers(method, url, params)
+        response = requests.get(url, params=params, headers=headers)
+        fills = response.json()
+        return Pagination(**fills)
+
+    def get_orders(
+        self,
+        symbols: Optional[List[str]] = None,
+        product_ids: Optional[List[int]] = None,
+        product_types: Optional[List[ProductType]] = None,
+        clearing_firm_codes: Optional[List[str]] = None,
+        account_ids: Optional[List[str]] = None,
+        connection_ids: Optional[List[int]] = None,
+        day: Optional[date] = None,
+        limit=None,
+        begin_time=None,
+        end_time=None,
+        order=None,
+        cursor=None,
+    ) -> Pagination[List[Fill], CursorInfo]:
+        method = "GET"
+        path = f"/{self.env}/orders"
+        url = self.base_url + path
+        params = {
+            "symbol": symbols,
+            "connection_id": connection_ids,
+            "product_id": product_ids,
+            "account_id": account_ids,
+            "clearing_firm_code": clearing_firm_codes,
+            "product_type": product_types,
+            "order": order,
+            "begin_time": begin_time,
+            "end_time": end_time,
+            "limit": limit,
+            "day": day,
+            "cursor": cursor,
+        }
+        headers = self.auth_headers(method, url, params)
+        response = requests.get(url, params=params, headers=headers)
+        orders = response.json()
+        return Pagination(**orders)
+
+    def auth_headers(self, method: str, url: str, params: Dict):
+        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        path = urlparse(url).path
+        signature = hmac.signature(
+            method, path, params, timestamp, self.connection_id, self.auth_token
+        )
+
+        return {
+            hmac.CONNECTION_ID_HEADER: str(self.connection_id),
+            hmac.TIMESTAMP_HEADER: timestamp,
+            hmac.SIGNATURE_HEADER: signature,
+        }
 
 
 # Example use:
