@@ -146,6 +146,31 @@ class Fill:
     liquidity: Liquidity
 
 
+class BlockTradeStatus(Enum):
+    Pending = "Pending"
+    Canceled = "Canceled"
+    Rejected = "Rejected"
+    Confirmed = "Confirmed"
+    Accepted = "Accepted"
+
+
+@dataclass
+class BlockTrade:
+    account_id: str
+    block_trade_id: int
+    counterparty_id: str
+    counterparty_email: Optional[str]
+    symbol: str
+    side: Side
+    price: int
+    quantity: int
+    exec_time: datetime
+    report_time: datetime
+    status: BlockTradeStatus
+    status_reason: Optional[str]
+    status_time: Optional[datetime]
+
+
 @dataclass
 class ProductData:
     product_id: int
@@ -335,6 +360,45 @@ class AuthBitnomialHttpClient(BitnomialHttpClient):
         response = requests.get(url, params=params, headers=headers)
         orders = response.json()
         return Pagination(**orders)
+
+    def get_block_trades(
+        self,
+        symbols: Optional[List[str]] = None,
+        product_ids: Optional[List[int]] = None,
+        product_types: Optional[List[ProductType]] = None,
+        clearing_firm_codes: Optional[List[str]] = None,
+        account_ids: Optional[List[str]] = None,
+        connection_ids: Optional[List[int]] = None,
+        status: Optional[List[BlockTradeStatus]] = None,
+        day: Optional[date] = None,
+        limit=None,
+        begin_time=None,
+        end_time=None,
+        order=None,
+        cursor=None,
+    ) -> Pagination[List[Fill], CursorInfo]:
+        method = "GET"
+        path = f"/{self.env}/block-trades"
+        url = self.base_url + path
+        params = {
+            "symbol": symbols,
+            "connection_id": connection_ids,
+            "product_id": product_ids,
+            "account_id": account_ids,
+            "clearing_firm_code": clearing_firm_codes,
+            "product_type": product_types,
+            "status": status,
+            "order": order,
+            "begin_time": begin_time,
+            "end_time": end_time,
+            "limit": limit,
+            "day": day,
+            "cursor": cursor,
+        }
+        headers = self.auth_headers(method, url, params)
+        response = requests.get(url, params=params, headers=headers)
+        block_trades = response.json()
+        return Pagination(**block_trades)
 
     def auth_headers(self, method: str, url: str, params: Dict):
         timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
