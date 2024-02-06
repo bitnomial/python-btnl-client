@@ -49,6 +49,9 @@ def get_parser():
     add_auth_args(get_orders)
     get_fills = command.add_parser("get-fills")
     add_auth_args(get_fills)
+    get_fills = command.add_parser("get-block-trades")
+    add_auth_args(get_fills)
+    get_fills.add_argument("--status", type=web.BlockTradeStatus, action="append")
     return parser
 
 
@@ -91,6 +94,29 @@ def main():
             clearing_firm_codes=args.clearing_firm_codes,
             account_ids=args.account_ids,
             connection_ids=args.connection_ids,
+            day=args.day,
+            limit=args.limit,
+            begin_time=args.begin_time,
+            end_time=args.end_time,
+            order=args.order,
+            cursor=args.cursor,
+        )
+        print(result)
+    elif args.command == "get-block-trades":
+        client = AuthBitnomialHttpClient(
+            connection_id=args.connection_id,
+            auth_token=args.auth_token,
+            base_url=args.base_url,
+            env=args.env,
+        )
+        result = client.get_block_trades(
+            symbols=args.symbols,
+            product_ids=args.product_ids,
+            product_types=args.product_types,
+            clearing_firm_codes=args.clearing_firm_codes,
+            account_ids=args.account_ids,
+            connection_ids=args.connection_ids,
+            status=args.status,
             day=args.day,
             limit=args.limit,
             begin_time=args.begin_time,
