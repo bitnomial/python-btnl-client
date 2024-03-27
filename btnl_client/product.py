@@ -14,6 +14,7 @@ class BaseSymbol(Enum):
     # only valid in env="prod"
     BUI = "BUI"
     BUS = "BUS"
+    HUP = "HUP"
     # only valid in env="sandbox"
     ZZZ = "ZZZ"
 
