@@ -2,6 +2,7 @@ import argparse
 from btnl_client.product import BitnomialHttpClient, AuthBitnomialHttpClient
 import btnl_client.product as web
 from datetime import date, datetime
+import btnl_client.websocket as ws
 
 
 def get_parser():
@@ -52,6 +53,7 @@ def get_parser():
     get_fills = command.add_parser("get-block-trades")
     add_auth_args(get_fills)
     get_fills.add_argument("--status", type=web.BlockTradeStatus, action="append")
+    command.add_parser("ws-feed")
     return parser
 
 
@@ -160,6 +162,22 @@ def main():
             base_symbol=args.base_symbol,
         )
         print(result)
+    elif args.command == "ws-feed":
+        client = ws.BitnomialWebSocketClient("wss://bitnomial.com/exchange/ws")
+
+        channels = [
+            ws.Channel(name=ws.ChannelName.Trade, product_codes=["BUI"]),
+            ws.Channel(name=ws.ChannelName.Book, product_codes=["BUI"]),
+            ws.Channel(name=ws.ChannelName.Status, product_codes=["BUI"]),
+        ]
+
+        message = ws.SubscribeMessage(
+            type=ws.SubscribeType.Subscribe,
+            product_codes=["BUI", "BUSO"],
+            channels=channels,
+        )
+
+        client.run(message)
 
 
 if __name__ == "__main__":
