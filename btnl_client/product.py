@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Union, TypeVar, Generic
 from enum import Enum
 from datetime import datetime, date, timezone
-import btnl_client.hmac as hmac
+import btnl_client.hmac_utils as hmac_utils
 from urllib.parse import urlparse
 import requests
 
@@ -404,14 +404,14 @@ class AuthBitnomialHttpClient(BitnomialHttpClient):
     def auth_headers(self, method: str, url: str, params: Dict):
         timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
         path = urlparse(url).path
-        signature = hmac.signature(
+        signature = hmac_utils.signature(
             method, path, params, timestamp, self.connection_id, self.auth_token
         )
 
         return {
-            hmac.CONNECTION_ID_HEADER: str(self.connection_id),
-            hmac.TIMESTAMP_HEADER: timestamp,
-            hmac.SIGNATURE_HEADER: signature,
+            hmac_utils.CONNECTION_ID_HEADER: str(self.connection_id),
+            hmac_utils.TIMESTAMP_HEADER: timestamp,
+            hmac_utils.SIGNATURE_HEADER: signature,
         }
 
 
