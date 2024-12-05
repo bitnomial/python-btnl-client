@@ -5,6 +5,10 @@
 #
 # $ nix-shell
 #
+# This puts you in a shell with a `python` binary on the `PATH`.  The `python` binary is
+# setup to be able to find all required python dependencies (like the
+# `requests` and `websockets` packages).
+#
 # From within this Nix shell, you can run the `bntl_client` module like the
 # following to play around with it:
 #
@@ -31,11 +35,12 @@ let
   python-with-my-packages =
     pkgs.python39.withPackages
       (python-pkgs:
-        [ python-pkgs.pytest
+        [ # python build/test/dev dependencies:
+          python-pkgs.pytest
           python-pkgs.build
-          #python-pkgs.python-lsp-server
+          python-pkgs.python-lsp-server
 
-          # Add your other dependencies here
+          # python run-time dependencies:
           python-pkgs.requests
           python-pkgs.types-requests
           python-pkgs.websockets
@@ -47,7 +52,7 @@ pkgs.stdenv.mkDerivation {
   buildInputs = [
     python-with-my-packages
 
-    # Add other non-python dependencies here
+    # Other non-python dependencies:
     pkgs.which
   ];
 }
