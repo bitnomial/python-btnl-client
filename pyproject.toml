@@ -24,6 +24,9 @@ tests = [
     "types-requests",
 ]
 
+[tool.setuptools]
+py-modules = []
+
 [tool.pylsp-mypy]
 enabled = true
 live_mode = true
