@@ -32,7 +32,7 @@ def get_parser():
         p.add_argument("--day", type=date, dest="day")
         p.add_argument("--cursor", type=str, dest="cursor")
 
-    parser = argparse.ArgumentParser(description="CLI BTNL client")
+    parser = argparse.ArgumentParser(prog="btnl_client", description="CLI BTNL client")
     parser.add_argument("--base-url", type=str, default=web.BASE_URL)
     parser.add_argument("--env", type=str, default="prod")
     command = parser.add_subparsers(dest="command", required=True)
