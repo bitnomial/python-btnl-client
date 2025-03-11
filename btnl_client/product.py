@@ -15,6 +15,12 @@ class BaseSymbol(Enum):
     BUI = "BUI"
     BUS = "BUS"
     HUP = "HUP"
+    ETUD = "ETUD"
+    ALUK = "ALUK"
+    BCUH = "BCUH"
+    CLUK = "CLUK"
+    LTUH = "LTUH"
+    SOUH = "SOUH"
     # only valid in env="sandbox"
     ZZZ = "ZZZ"
 
@@ -61,7 +67,7 @@ class BaseProductSpec:
 class ProductFutureSpec(BaseProductSpec):
     margin_unit: str
     settlement_method: str
-    contract_size: int
+    contract_size: float
     contract_size_unit: str
     price_quotation_unit: str
     month: int
